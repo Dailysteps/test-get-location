@@ -3,37 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geolocation and IP Address</title>
+    <title>Geolocation and IP Logger</title>
     <script>
+        // Get user's location
         function getLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition);
+                navigator.geolocation.getCurrentPosition(sendData, showError);
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
         }
 
-        function showPosition(position) {
-            var latitude = position.coords.latitude;
-            var longitude = position.coords.longitude;
-            var ipAddress = getIPAddress(); // This function needs to be implemented
+        // Send the data to the PHP script using an AJAX request
+        function sendData(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+            var userAgent = navigator.userAgent;
 
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "process.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("latitude=" + latitude + "&longitude=" + longitude + "&ipAddress=" + ipAddress + "&userAgent=" + navigator.userAgent);
+            // Get IP address using a third-party service (can also be done in PHP)
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    var ip = data.ip;
+
+                    // Send data via AJAX to the PHP script
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "save_data.php", true);
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.send("lat=" + lat + "&lon=" + lon + "&userAgent=" + userAgent + "&ip=" + ip);
+                });
         }
 
-        function getIPAddress() {
-            // This function needs to be implemented to get the IP address
-            // You can use a service like https://api.ipify.org?format=json to get the IP address
-            return "127.0.0.1"; // Placeholder
+        // Show error if geolocation fails
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
         }
 
-        window.onload = getLocation;
+        // Trigger geolocation request on page load
+        window.onload = function() {
+            getLocation();
+        }
     </script>
 </head>
 <body>
-    <h1>Geolocation and IP Address</h1>
+    <h1>Logging Geolocation and IP</h1>
+    <p>Your location and information will be logged automatically.</p>
 </body>
 </html>
