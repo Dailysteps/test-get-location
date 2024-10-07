@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geolocation and IP Address</title>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            var ipAddress = getIPAddress(); // This function needs to be implemented
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "process.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send("latitude=" + latitude + "&longitude=" + longitude + "&ipAddress=" + ipAddress + "&userAgent=" + navigator.userAgent);
+        }
+
+        function getIPAddress() {
+            // This function needs to be implemented to get the IP address
+            // You can use a service like https://api.ipify.org?format=json to get the IP address
+            return "127.0.0.1"; // Placeholder
+        }
+
+        window.onload = getLocation;
+    </script>
+</head>
+<body>
+    <h1>Geolocation and IP Address</h1>
+</body>
+</html>
